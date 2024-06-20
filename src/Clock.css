@@ -1,0 +1,22 @@
+.clock {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  gap: 1rem;
+}
+
+.clock * {
+  margin: 0;
+
+  line-height: 1;
+  font-size: 1rem;
+}
+
+.clock h2 {
+  font-size: 1.1rem;
+}
+
+.clock .clock-now {
+  font-family: Menlo, Consolas, 'Apple SD Gothic Neo', 'Malgun Gothic',
+    monospace;
+}
