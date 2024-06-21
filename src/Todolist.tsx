@@ -2,33 +2,18 @@ import { useState } from 'react';
 import { Button, Form } from 'react-bootstrap';
 
 import Clock from './Clock';
+import Todo from './Todo';
+import TodoModal from './TodoModal';
 import './Todolist.css';
 
-// TODO: 나는 왜 클래스로 빼고 싶지... id 자동 증가가 하고 싶다... immutable...
-type Todo = {
-  id: number;
-  title: string;
-  done: boolean;
-};
-
 function Todolist() {
-  const [nextId, setNextId] = useState(4);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [chosenTodo, setChosenTodo] = useState<Todo | null>(null);
+
   const [todos, setTodos] = useState<Todo[]>([
-    {
-      id: 1,
-      title: '일찍 일어나기',
-      done: false,
-    },
-    {
-      id: 2,
-      title: '밥먹기',
-      done: false,
-    },
-    {
-      id: 3,
-      title: '공부하기',
-      done: false,
-    },
+    new Todo('일찍 일어나기'),
+    new Todo('밥 먹기'),
+    new Todo('공부하기'),
   ]);
 
   const title = 'TODO';
@@ -36,7 +21,7 @@ function Todolist() {
   const invertDone = (id: number) => {
     setTodos(
       todos.map((todo) =>
-        todo.id === id ? { ...todo, done: !todo.done } : todo
+        todo.id === id ? new Todo(todo.title, !todo.done, todo) : todo
       )
     );
   };
@@ -49,19 +34,27 @@ function Todolist() {
       return;
     }
 
-    const value = titleElem.value.trim();
-    if (!value) {
+    const title = titleElem.value.trim();
+    if (!title) {
       return;
     }
 
-    setTodos([...todos, { id: nextId, title: value, done: false }]);
-    setNextId(nextId + 1);
+    setTodos([...todos, new Todo(title, false)]);
 
     titleElem.value = '';
   };
 
+  const openModal = (todo: Todo) => {
+    setChosenTodo(todo);
+    setModalOpen(true);
+  };
+
   const removeTodo = (id: number) => {
     setTodos(todos.filter((todo) => todo.id !== id));
+  };
+
+  const handleModalClose = () => {
+    setModalOpen(false);
   };
 
   return (
@@ -85,7 +78,9 @@ function Todolist() {
               checked={todo.done}
               onChange={() => invertDone(todo.id)}
             />
-            <div className="todo-item-title">{todo.title}</div>
+            <div className="todo-item-title" onClick={() => openModal(todo)}>
+              {todo.title}
+            </div>
             <Button
               type="button"
               variant="outline-danger"
@@ -99,6 +94,12 @@ function Todolist() {
       </ul>
 
       <Clock />
+
+      <TodoModal
+        show={modalOpen}
+        todo={chosenTodo || Todo.empty}
+        onClose={handleModalClose}
+      />
     </div>
   );
 }
